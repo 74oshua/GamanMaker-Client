@@ -5,12 +5,13 @@ using UnityEngine;
 
 namespace GamanMaker
 {
-	[BepInPlugin("org.bepinex.plugins.gamanmaker", "GamanMaker", "0.1.0.0")]
+	[BepInPlugin("org.bepinex.plugins.gamanmaker", "GamanMaker-Client", "0.1.0.0")]
 	public class GamanMaker : BaseUnityPlugin
 	{
 		public void Awake()
 		{
-			System.Console.WriteLine("Starting GamanMaker");
+			System.Console.WriteLine("Starting GamanMaker-Client");
+			Harmony.CreateAndPatchAll(typeof(Patches.Game_Patch));
 			Harmony.CreateAndPatchAll(typeof(Patches.EnemyHud_Patch));
 			Harmony.CreateAndPatchAll(typeof(Patches.Console_Patch));
 		}

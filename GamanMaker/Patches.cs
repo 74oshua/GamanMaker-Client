@@ -10,6 +10,18 @@ namespace GamanMaker
 {
 	public class Patches
 	{
+		public class Game_Patch
+		{
+			[HarmonyPatch(typeof(Game), "Start")]
+			[HarmonyPrefix]
+			public static void Start_Prefix()
+			{
+				ZRoutedRpc.instance.Register("RequestSetWeather", new Action<long, ZPackage>(WeatherSystem.RPC_RequestSetWeather));
+				ZRoutedRpc.instance.Register("EventSetWeather", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetWeather));
+				ZRoutedRpc.instance.Register("BadRequestMsg", new Action<long, ZPackage>(WeatherSystem.RPC_BadRequestMsg));
+			}
+		}
+
 		public class EnemyHud_Patch
 		{
 			[HarmonyPatch(typeof(EnemyHud), "ShowHud")]
@@ -48,14 +60,17 @@ namespace GamanMaker
 								case "set":
 									if (ops.Length > 2)
 									{
+										ZPackage pkg = new ZPackage();
 										if (ops[2] == "none")
 										{
-											GamanMaker.env_override.m_name = "";
+											pkg.Write("");
+											ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetWeather", new object[] { pkg });
 											EnvMan.instance.m_debugEnv = "";
 											break;
 										}
 
-										GamanMaker.env_override = EnvMan.instance.GetEnv(ops[2]);
+										pkg.Write(ops[2]);
+										ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetWeather", new object[] { pkg });
 										EnvMan.instance.m_debugEnv = ops[2];
 									}
 									else
