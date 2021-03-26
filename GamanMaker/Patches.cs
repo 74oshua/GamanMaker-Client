@@ -36,7 +36,7 @@ namespace GamanMaker
 		{
 			[HarmonyPatch(typeof(Console), "InputText")]
 			[HarmonyPrefix]
-			public static void InputText_Patch(Console __instance)
+			public static bool InputText_Patch(Console __instance)
 			{
 				String command = __instance.m_input.text;
 				String[] ops = command.Split(' ');
@@ -65,13 +65,13 @@ namespace GamanMaker
 										{
 											pkg.Write("");
 											ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetWeather", new object[] { pkg });
-											EnvMan.instance.m_debugEnv = "";
+                							// EnvMan.instance.m_debugEnv = "";
 											break;
 										}
 
 										pkg.Write(ops[2]);
 										ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetWeather", new object[] { pkg });
-										EnvMan.instance.m_debugEnv = ops[2];
+										// EnvMan.instance.m_debugEnv = ops[2];
 									}
 									else
 									{
@@ -86,8 +86,9 @@ namespace GamanMaker
 							__instance.AddString("list 				- List all availible environment names");
 							__instance.AddString("set <envname> 	- Set the current weather to that of the given environment by name");
 						}
-						break;
+						return false;
 				}
+				return true;
 			}
 		}
 	}
