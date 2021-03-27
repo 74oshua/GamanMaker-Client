@@ -24,6 +24,16 @@ namespace GamanMaker
 			}
 		}
 
+		public class Player_Patch
+		{
+			[HarmonyPatch(typeof(Player), "Awake")]
+			[HarmonyPostfix]
+			public static void Awake_Postfix()
+			{
+				ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
+			}
+		}
+
 		public class EnemyHud_Patch
 		{
 			[HarmonyPatch(typeof(EnemyHud), "ShowHud")]
@@ -97,6 +107,9 @@ namespace GamanMaker
 						
 						pkg.Write(ops[1]);
 						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetTime", new object[] { pkg });
+						return false;
+					case "sync":
+						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
 						return false;
 				}
 				return true;

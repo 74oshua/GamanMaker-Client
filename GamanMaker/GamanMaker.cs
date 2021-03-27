@@ -12,6 +12,7 @@ namespace GamanMaker
 		{
 			System.Console.WriteLine("Starting GamanMaker-Client");
 			Harmony.CreateAndPatchAll(typeof(Patches.Game_Patch));
+			Harmony.CreateAndPatchAll(typeof(Patches.Player_Patch));
 			Harmony.CreateAndPatchAll(typeof(Patches.EnemyHud_Patch));
 			Harmony.CreateAndPatchAll(typeof(Patches.Console_Patch));
 		}
