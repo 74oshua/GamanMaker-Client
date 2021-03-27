@@ -42,5 +42,30 @@ namespace GamanMaker
         {
             return;
         }
+
+        public static void RPC_EventSetTime(long sender, ZPackage pkg)
+        {
+            UnityEngine.Debug.Log("changing time of day...");
+            if (sender == ZRoutedRpc.instance.GetServerPeerID() && pkg != null && pkg.Size() > 0)
+            {
+                String tod_str = pkg.ReadString();
+                float tod = float.Parse(tod_str);
+                
+                if (tod < 0f)
+                {
+                    EnvMan.instance.m_debugTimeOfDay = false;
+                }
+                else
+                {
+                    EnvMan.instance.m_debugTimeOfDay = true;
+                    EnvMan.instance.m_debugTime = Mathf.Clamp01(tod);
+                }
+            }
+        }
+
+        public static void RPC_RequestSetTime(long sender, ZPackage pkg)
+        {
+            return;
+        }
     }   
 }

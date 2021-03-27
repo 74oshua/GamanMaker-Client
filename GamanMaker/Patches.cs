@@ -18,6 +18,8 @@ namespace GamanMaker
 			{
 				ZRoutedRpc.instance.Register("RequestSetWeather", new Action<long, ZPackage>(WeatherSystem.RPC_RequestSetWeather));
 				ZRoutedRpc.instance.Register("EventSetWeather", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetWeather));
+				ZRoutedRpc.instance.Register("RequestSetTime", new Action<long, ZPackage>(WeatherSystem.RPC_RequestSetTime));
+				ZRoutedRpc.instance.Register("EventSetTime", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetTime));
 				ZRoutedRpc.instance.Register("BadRequestMsg", new Action<long, ZPackage>(WeatherSystem.RPC_BadRequestMsg));
 			}
 		}
@@ -41,6 +43,7 @@ namespace GamanMaker
 				String command = __instance.m_input.text;
 				String[] ops = command.Split(' ');
 				
+				ZPackage pkg = new ZPackage();
 				switch (ops[0])
 				{
 					case "weather":
@@ -60,7 +63,6 @@ namespace GamanMaker
 								case "set":
 									if (ops.Length > 2)
 									{
-										ZPackage pkg = new ZPackage();
 										if (ops[2] == "none")
 										{
 											pkg.Write("");
@@ -86,6 +88,15 @@ namespace GamanMaker
 							__instance.AddString("list 				- List all availible environment names");
 							__instance.AddString("set <envname> 	- Set the current weather to that of the given environment by name");
 						}
+						return false;
+					case "tod":
+						if (ops.Length < 2)
+						{
+							return true;
+						}
+						
+						pkg.Write(ops[1]);
+						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetTime", new object[] { pkg });
 						return false;
 				}
 				return true;
