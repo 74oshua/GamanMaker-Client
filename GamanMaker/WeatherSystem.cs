@@ -13,9 +13,9 @@ namespace GamanMaker
         // code borrowed from https://github.com/Valheim-Modding/Wiki/wiki/Server-Validated-RPC-System and modified
         public static void RPC_EventSetWeather(long sender, ZPackage pkg)
         {
-            UnityEngine.Debug.Log("changing weather...");
             if (sender == ZRoutedRpc.instance.GetServerPeerID() && pkg != null && pkg.Size() > 0)
             {
+                UnityEngine.Debug.Log("changing weather...");
                 String env_name = pkg.ReadString();
 
                 if (env_name == "")
@@ -45,11 +45,11 @@ namespace GamanMaker
 
         public static void RPC_EventSetTime(long sender, ZPackage pkg)
         {
-            UnityEngine.Debug.Log("changing time of day...");
             if (sender == ZRoutedRpc.instance.GetServerPeerID() && pkg != null && pkg.Size() > 0)
             {
+                UnityEngine.Debug.Log("changing time of day...");
                 String tod_str = pkg.ReadString();
-                float tod = float.Parse(tod_str);
+                float tod = float.Parse(tod_str, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
                 
                 if (tod < 0f)
                 {
@@ -64,6 +64,17 @@ namespace GamanMaker
         }
 
         public static void RPC_RequestSetTime(long sender, ZPackage pkg)
+        {
+            return;
+        }
+
+        public static void RPC_EventTestConnection(long sender, ZPackage pkg)
+        {
+            UnityEngine.Debug.Log("Server has GamanMaker installed");
+            GamanMaker.valid_server = true;
+        }
+
+        public static void RPC_RequestTestConnection(long sender, ZPackage pkg)
         {
             return;
         }

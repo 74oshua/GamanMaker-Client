@@ -8,6 +8,7 @@ namespace GamanMaker
 	[BepInPlugin("org.bepinex.plugins.gamanmaker", "GamanMaker-Client", "0.1.0.0")]
 	public class GamanMaker : BaseUnityPlugin
 	{
+
 		public void Awake()
 		{
 			System.Console.WriteLine("Starting GamanMaker-Client");
@@ -17,6 +18,6 @@ namespace GamanMaker
 			Harmony.CreateAndPatchAll(typeof(Patches.Console_Patch));
 		}
 
-		public static EnvSetup env_override = new EnvSetup();
+    	public static bool valid_server = false;
 	}
 }

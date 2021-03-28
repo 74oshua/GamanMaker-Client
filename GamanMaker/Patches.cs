@@ -20,6 +20,8 @@ namespace GamanMaker
 				ZRoutedRpc.instance.Register("EventSetWeather", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetWeather));
 				ZRoutedRpc.instance.Register("RequestSetTime", new Action<long, ZPackage>(WeatherSystem.RPC_RequestSetTime));
 				ZRoutedRpc.instance.Register("EventSetTime", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetTime));
+				ZRoutedRpc.instance.Register("RequestTestConnection", new Action<long, ZPackage>(WeatherSystem.RPC_RequestTestConnection));
+				ZRoutedRpc.instance.Register("EventTestConnection", new Action<long, ZPackage>(WeatherSystem.RPC_EventTestConnection));
 				ZRoutedRpc.instance.Register("BadRequestMsg", new Action<long, ZPackage>(WeatherSystem.RPC_BadRequestMsg));
 			}
 		}
@@ -30,6 +32,10 @@ namespace GamanMaker
 			[HarmonyPostfix]
 			public static void Awake_Postfix()
 			{
+				if (ZRoutedRpc.instance == null)
+				{
+					return;
+				}
 				ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
 			}
 		}
@@ -40,6 +46,10 @@ namespace GamanMaker
 			[HarmonyPrefix]
 			public static bool ShowHud_Prefix()
 			{
+				if (!GamanMaker.valid_server)
+				{
+					return true;
+				}
 				return false;
 			}
 		}
@@ -50,6 +60,11 @@ namespace GamanMaker
 			[HarmonyPrefix]
 			public static bool InputText_Patch(Console __instance)
 			{
+				if (!GamanMaker.valid_server)
+				{
+					return true;
+				}
+				
 				String command = __instance.m_input.text;
 				String[] ops = command.Split(' ');
 				
