@@ -70,11 +70,22 @@ namespace GamanMaker
 
         public static void RPC_EventTestConnection(long sender, ZPackage pkg)
         {
-            UnityEngine.Debug.Log("Server has GamanMaker installed");
+            UnityEngine.Debug.Log("server has GamanMaker installed");
             GamanMaker.valid_server = true;
         }
 
         public static void RPC_RequestTestConnection(long sender, ZPackage pkg)
+        {
+            return;
+        }
+
+        public static void RPC_EventAdminSync(long sender, ZPackage pkg)
+        {
+            UnityEngine.Debug.Log("this account is an admin");
+            GamanMaker.admin = true;
+        }
+
+        public static void RPC_RequestAdminSync(long sender, ZPackage pkg)
         {
             return;
         }

@@ -22,6 +22,8 @@ namespace GamanMaker
 				ZRoutedRpc.instance.Register("EventSetTime", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetTime));
 				ZRoutedRpc.instance.Register("RequestTestConnection", new Action<long, ZPackage>(WeatherSystem.RPC_RequestTestConnection));
 				ZRoutedRpc.instance.Register("EventTestConnection", new Action<long, ZPackage>(WeatherSystem.RPC_EventTestConnection));
+				ZRoutedRpc.instance.Register("RequestAdminSync", new Action<long, ZPackage>(WeatherSystem.RPC_RequestAdminSync));
+				ZRoutedRpc.instance.Register("EventAdminSync", new Action<long, ZPackage>(WeatherSystem.RPC_EventAdminSync));
 				ZRoutedRpc.instance.Register("BadRequestMsg", new Action<long, ZPackage>(WeatherSystem.RPC_BadRequestMsg));
 			}
 		}
@@ -37,6 +39,7 @@ namespace GamanMaker
 					return;
 				}
 				ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
+				ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestAdminSync", new object[] { new ZPackage() });
 			}
 		}
 
@@ -60,7 +63,7 @@ namespace GamanMaker
 			[HarmonyPrefix]
 			public static bool InputText_Patch(Console __instance)
 			{
-				if (!GamanMaker.valid_server)
+				if (!GamanMaker.valid_server || !GamanMaker.admin)
 				{
 					return true;
 				}
@@ -125,9 +128,26 @@ namespace GamanMaker
 						return false;
 					case "sync":
 						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
+						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestAdminSync", new object[] { new ZPackage() });
+						return false;
+					case "fly":
+						GamanMaker.flying = !GamanMaker.flying;
+						__instance.AddString("toggling flight");
+						return false;
+					case "invis":
+						GamanMaker.invisible = !GamanMaker.invisible;
+						__instance.AddString("toggling visibility");
 						return false;
 				}
 				return true;
+			}
+			
+			[HarmonyPatch(typeof(Player), "Update")]
+			[HarmonyPrefix]
+			public static void IsCheatsEnabled_Prefix(Player __instance)
+			{
+				__instance.SetVisible(!GamanMaker.invisible);
+				__instance.m_debugFly = GamanMaker.flying;
 			}
 		}
 	}

@@ -19,5 +19,8 @@ namespace GamanMaker
 		}
 
     	public static bool valid_server = false;
+    	public static bool admin = false;
+    	public static bool flying = false;
+    	public static bool invisible = false;
 	}
 }
