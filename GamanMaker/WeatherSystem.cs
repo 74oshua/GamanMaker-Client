@@ -89,5 +89,27 @@ namespace GamanMaker
         {
             return;
         }
+
+         public static void RPC_EventSetVisible(long sender, ZPackage pkg)
+        {
+            UnityEngine.Debug.Log("setting player visibility...");
+            
+            string name = pkg.ReadString();
+            bool vis = pkg.ReadBool();
+
+            if (!vis && !GamanMaker.invisible_players.Contains(name))
+            {
+                GamanMaker.invisible_players.Add(name);
+            }
+            else if (vis && GamanMaker.invisible_players.Contains(name))
+            {
+                GamanMaker.invisible_players.Remove(name);
+            }
+        }
+
+        public static void RPC_RequestSetVisible(long sender, ZPackage pkg)
+        {
+            return;
+        }
     }   
 }

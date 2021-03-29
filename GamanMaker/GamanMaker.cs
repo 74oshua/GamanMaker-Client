@@ -16,11 +16,12 @@ namespace GamanMaker
 			Harmony.CreateAndPatchAll(typeof(Patches.Player_Patch));
 			Harmony.CreateAndPatchAll(typeof(Patches.EnemyHud_Patch));
 			Harmony.CreateAndPatchAll(typeof(Patches.Console_Patch));
+			Harmony.CreateAndPatchAll(typeof(Patches.Character_Patch));
 		}
 
     	public static bool valid_server = false;
     	public static bool admin = false;
-    	public static bool flying = false;
-    	public static bool invisible = false;
+    	public static bool visible = true;
+		public static List<string> invisible_players = new List<string>();
 	}
 }

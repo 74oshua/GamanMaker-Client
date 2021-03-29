@@ -24,7 +24,19 @@ namespace GamanMaker
 				ZRoutedRpc.instance.Register("EventTestConnection", new Action<long, ZPackage>(WeatherSystem.RPC_EventTestConnection));
 				ZRoutedRpc.instance.Register("RequestAdminSync", new Action<long, ZPackage>(WeatherSystem.RPC_RequestAdminSync));
 				ZRoutedRpc.instance.Register("EventAdminSync", new Action<long, ZPackage>(WeatherSystem.RPC_EventAdminSync));
+				ZRoutedRpc.instance.Register("RequestSetVisible", new Action<long, ZPackage>(WeatherSystem.RPC_RequestSetVisible));
+				ZRoutedRpc.instance.Register("EventSetVisible", new Action<long, ZPackage>(WeatherSystem.RPC_EventSetVisible));
 				ZRoutedRpc.instance.Register("BadRequestMsg", new Action<long, ZPackage>(WeatherSystem.RPC_BadRequestMsg));
+			}
+		}
+
+		public class ZNet
+		{
+			[HarmonyPatch(typeof(ZNet), "Shutdown")]
+			[HarmonyPostfix]
+			public static void Shutdown_Postfix()
+			{
+				GamanMaker.invisible_players.Clear();
 			}
 		}
 
@@ -40,6 +52,39 @@ namespace GamanMaker
 				}
 				ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
 				ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestAdminSync", new object[] { new ZPackage() });
+			}
+
+			[HarmonyPatch(typeof(Player), "Update")]
+			[HarmonyPrefix]
+			public static void Update_Prefix(Player __instance)
+			{
+				__instance.SetVisible(true);
+				foreach (var name in GamanMaker.invisible_players)
+				{
+					if (name == __instance.GetPlayerName())
+					{
+						__instance.SetVisible(false);
+					}
+				}
+			}
+		}
+
+		public class Character_Patch
+		{
+
+			[HarmonyPatch(typeof(Character), "SetVisible")]
+			[HarmonyPrefix]
+			public static bool SetVisible_Prefix(Character __instance, bool visible)
+			{
+				if (visible)
+				{
+					__instance.m_lodGroup.localReferencePoint = __instance.m_originalLocalRef;
+				}
+				else
+				{
+					__instance.m_lodGroup.localReferencePoint = new Vector3(999999f, 999999f, 999999f);
+				}
+				return false;
 			}
 		}
 
@@ -130,24 +175,27 @@ namespace GamanMaker
 						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSync", new object[] { new ZPackage() });
 						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestAdminSync", new object[] { new ZPackage() });
 						return false;
-					case "fly":
-						GamanMaker.flying = !GamanMaker.flying;
-						__instance.AddString("toggling flight");
-						return false;
 					case "invis":
-						GamanMaker.invisible = !GamanMaker.invisible;
-						__instance.AddString("toggling visibility");
+						if (ops.Length < 2)
+						{
+							return true;
+						}
+
+						pkg.Write(Game.instance.GetPlayerProfile().m_playerName);
+						switch (ops[1])
+						{
+							case "on":
+								pkg.Write(false);
+								break;
+							case "off":
+								pkg.Write(true);
+								break;
+						}
+						
+						ZRoutedRpc.instance.InvokeRoutedRPC(ZRoutedRpc.instance.GetServerPeerID(), "RequestSetVisible", new object[] { pkg });
 						return false;
 				}
 				return true;
-			}
-			
-			[HarmonyPatch(typeof(Player), "Update")]
-			[HarmonyPrefix]
-			public static void IsCheatsEnabled_Prefix(Player __instance)
-			{
-				__instance.SetVisible(!GamanMaker.invisible);
-				__instance.m_debugFly = GamanMaker.flying;
 			}
 		}
 	}
